@@ -1,6 +1,6 @@
 package com.rkfinserv.stockmarket.exception;
 
-import com.rkfinserv.stockmarket.service.BavCopyResult;
+import com.rkfinserv.stockmarket.model.BavCopyResult;
 
 public class BavCopyException extends Exception {
 	

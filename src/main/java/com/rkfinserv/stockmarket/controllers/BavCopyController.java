@@ -1,5 +1,7 @@
 package com.rkfinserv.stockmarket.controllers;
 
+import java.util.List;
+
 import javax.websocket.server.PathParam;
 
 import org.slf4j.Logger;
@@ -11,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rkfinserv.stockmarket.exception.BavCopyException;
-import com.rkfinserv.stockmarket.service.BavCopyResult;
+import com.rkfinserv.stockmarket.model.BavCopy;
+import com.rkfinserv.stockmarket.model.BavCopyResult;
 import com.rkfinserv.stockmarket.service.BavCopyService;
 
 @RestController
@@ -44,6 +47,13 @@ public class BavCopyController {
 			LOG.error("Failed to load the bavcopy", e);
 			return e.getBavCopyResult();
 		}
+	}
+	
+	public List<BavCopy> getStockHistory(String symbol, String date){
+		LOG.info("request received to get history for {} from {}");
+		
+		
+		return null;
 	}
 	
 	

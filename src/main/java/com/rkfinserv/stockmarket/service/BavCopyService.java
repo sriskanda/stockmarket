@@ -1,6 +1,7 @@
 package com.rkfinserv.stockmarket.service;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import com.rkfinserv.stockmarket.exception.BavCopyException;
 import com.rkfinserv.stockmarket.model.BavCopy;
+import com.rkfinserv.stockmarket.model.BavCopyResult;
 import com.rkfinserv.stockmarket.repositories.BavCopyRepository;
 
 @Service
@@ -31,7 +33,7 @@ public class BavCopyService {
 	private final BavCopyRepository bavCopyRepository;
 
 	private final String DOWNLOAD_URL_PATTERN = "https://archives.nseindia.com/content/historical/EQUITIES/2021/JAN/cm%sbhav.csv.zip"; ; 
-	private final String DOWNLOAD_FOLDER_PATH_PATTERN = "C:\\\\Users\\\\harivar\\\\Documents\\\\personal\\\\finance\\\\bavcopy\\\\cm%sbhav.csv";
+	private final String DOWNLOAD_FOLDER_PATH_PATTERN = "cm%sbhav.csv";
 	
 	public BavCopyService(BavCopyRepository bavCopyRepository) {
 		super();
@@ -50,6 +52,17 @@ public class BavCopyService {
 		String filePath = downloadFile(date);
 		List<BavCopy> bavRecords = readFile(filePath);
 		persistRecords(bavRecords);
+		removeFile(filePath);
+	}
+
+	private void removeFile(String filePath) {
+		File file = new File(filePath);
+		if(file.exists()) {
+			file.delete();
+			LOG.info("File is deleted {}", filePath);
+		}
+		
+		
 	}
 
 	private List<BavCopy> readFile(String filePath) throws BavCopyException {
