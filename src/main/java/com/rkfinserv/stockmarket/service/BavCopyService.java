@@ -6,11 +6,13 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -21,7 +23,9 @@ import org.springframework.stereotype.Service;
 
 import com.rkfinserv.stockmarket.exception.BavCopyException;
 import com.rkfinserv.stockmarket.model.BavCopy;
+import com.rkfinserv.stockmarket.model.BavCopyAudit;
 import com.rkfinserv.stockmarket.model.BavCopyResult;
+import com.rkfinserv.stockmarket.repositories.BavCopyAuditRepository;
 import com.rkfinserv.stockmarket.repositories.BavCopyRepository;
 
 @Service
@@ -29,40 +33,62 @@ public class BavCopyService {
 
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-	@Autowired
 	private final BavCopyRepository bavCopyRepository;
+	private final BavCopyAuditRepository bavCopyAuditRepository;
 
-	private final String DOWNLOAD_URL_PATTERN = "https://archives.nseindia.com/content/historical/EQUITIES/2021/JAN/cm%sbhav.csv.zip"; ; 
+	private final String DOWNLOAD_URL_PATTERN = "https://archives.nseindia.com/content/historical/EQUITIES/%s/%s/cm%sbhav.csv.zip";
 	private final String DOWNLOAD_FOLDER_PATH_PATTERN = "cm%sbhav.csv";
-	
-	public BavCopyService(BavCopyRepository bavCopyRepository) {
+
+	@Autowired
+	public BavCopyService(BavCopyRepository bavCopyRepository, BavCopyAuditRepository bavCopyAuditRepository) {
 		super();
 		this.bavCopyRepository = bavCopyRepository;
+		this.bavCopyAuditRepository = bavCopyAuditRepository;
 	}
 
-	public void persistRecords(List<BavCopy> bavCopies) {
+	public List<BavCopy> getBavCopy() {
+		return bavCopyRepository.findAll();
+	}
+
+	public List<BavCopy> getBavCopy(String symbol) {
+		List<BavCopy> bavCopies = new ArrayList<BavCopy>();
+		Optional<BavCopy> bavCopyOptional = bavCopyRepository.findById(symbol);
+		if (bavCopyOptional.isPresent()) {
+			bavCopies.add(bavCopyOptional.get());
+		}
+		return bavCopies;
+	}
+
+	public List<BavCopyAudit> getBavCopyAudit(String symbol) {
+		return bavCopyAuditRepository.findBySymbol(symbol);
+	}
+
+	public void loadBavCopy(String date, boolean isLatest) throws BavCopyException {
+		String filePath = downloadFile(date);
+		List<BavCopy> bavRecords = readFile(filePath);
+		persistRecords(bavRecords, isLatest);
+		removeFile(filePath);
+	}
+
+	private void persistRecords(List<BavCopy> bavCopies, boolean isLatest) {
 		bavCopies.forEach(bavCopy -> {
-			bavCopyRepository.save(bavCopy);
+			if (isLatest) {
+				bavCopyRepository.save(bavCopy);
+			}
+			BavCopyAudit bavCopyAudit = BavCopyAudit.createAudit(bavCopy);
+			bavCopyAuditRepository.save(bavCopyAudit);
 		});
 
 		LOG.info("competed saving all bavcoies {}", bavCopies.size());
 	}
 
-	public void loadBavCopy(String date) throws BavCopyException {
-		String filePath = downloadFile(date);
-		List<BavCopy> bavRecords = readFile(filePath);
-		persistRecords(bavRecords);
-		removeFile(filePath);
-	}
-
 	private void removeFile(String filePath) {
 		File file = new File(filePath);
-		if(file.exists()) {
+		if (file.exists()) {
 			file.delete();
 			LOG.info("File is deleted {}", filePath);
 		}
-		
-		
+
 	}
 
 	private List<BavCopy> readFile(String filePath) throws BavCopyException {
@@ -79,9 +105,10 @@ public class BavCopyService {
 						.low(Double.valueOf(elements[4])).close(Double.valueOf(elements[5]))
 						.last(Double.valueOf(elements[6])).prevClose(Double.valueOf(elements[7]))
 						.totTrdQty(Long.valueOf(elements[8])).totTrdVal(Double.valueOf(elements[9]))
-						.timeStamp(new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss z").parse(elements[10]+" 23:00:00 IST"))
+						.timeStamp(new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss z").parse(elements[10] + " 23:00:00 IST"))
 						.totalTrades(Long.valueOf(elements[11])).isin(elements[12]).insertedAt(new Date()).build();
-
+				record.setChange();
+				record.setChangePercentage();
 				bavRecords.add(record);
 			}
 
@@ -93,13 +120,20 @@ public class BavCopyService {
 	}
 
 	private String downloadFile(String date) throws BavCopyException {
-		String path = String.format(DOWNLOAD_URL_PATTERN, date);
+		String yearText = date.substring(5);
+		String monthText = date.substring(2, 5);
+
+		String path = String.format(DOWNLOAD_URL_PATTERN, yearText, monthText, date);
+
 		String folderPath = String.format(DOWNLOAD_FOLDER_PATH_PATTERN, date);
 		LOG.info("downloading the bavfile {}", path);
 		try {
 			FileOutputStream fos = new FileOutputStream(folderPath);
 			URL url = new URL(path);
-			ZipInputStream zipStream = new ZipInputStream(url.openConnection().getInputStream());
+			URLConnection con = url.openConnection();
+			con.setConnectTimeout(2000);
+			con.setReadTimeout(2000);
+			ZipInputStream zipStream = new ZipInputStream(con.getInputStream());
 			zipStream.getNextEntry();
 			byte[] buffer = new byte[1024];
 			int len;
