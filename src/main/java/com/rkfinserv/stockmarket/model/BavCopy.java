@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.rkfinserv.stockmarket.dto.BavCopyDto;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -15,7 +16,9 @@ import lombok.ToString;
 @Builder
 @ToString
 @Document
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class BavCopy {
+	@EqualsAndHashCode.Include
 	@Id
 	private String symbol;
 	private String series;

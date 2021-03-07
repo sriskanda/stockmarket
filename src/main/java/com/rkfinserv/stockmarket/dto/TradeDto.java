@@ -2,6 +2,8 @@ package com.rkfinserv.stockmarket.dto;
 
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
@@ -23,5 +25,10 @@ public class TradeDto {
 	private String tradeType;
 	private Long quantity;
 	private Double avgPrice;
+	private Double targetPrice;
+	@JsonFormat(pattern = "yyyy-MM-dd")
 	private Date tradeDate;	
+	private Double latestPrice;
+	private Double changePercentage;
+	private Date lastTradedDate;
 }

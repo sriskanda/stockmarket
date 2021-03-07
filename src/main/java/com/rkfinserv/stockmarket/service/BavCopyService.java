@@ -10,9 +10,11 @@ import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -64,9 +66,11 @@ public class BavCopyService {
 	}
 
 	public void loadBavCopy(String date, boolean isLatest) throws BavCopyException {
+		List<String> seriesFilter = List.of("EQ", "BE");
 		String filePath = downloadFile(date);
 		List<BavCopy> bavRecords = readFile(filePath);
-		persistRecords(bavRecords, isLatest);
+		List<BavCopy> filteredBavRecords = bavRecords.stream().filter(record -> seriesFilter.contains(record.getSeries())).collect(Collectors.toList());
+		persistRecords(filteredBavRecords, isLatest);
 		removeFile(filePath);
 	}
 

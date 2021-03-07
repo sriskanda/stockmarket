@@ -1,6 +1,9 @@
 package com.rkfinserv.stockmarket.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.rkfinserv.stockmarket.model.Trade;
@@ -25,6 +28,14 @@ public class TradeBookService {
 		trade = tradeBookRepository.insert(trade);
 		log.info("inserted the trade {}", trade);
 		return trade;
+	}
+	
+	public List<Trade> getAllTrades() {
+		return tradeBookRepository.findAll(Sort.by(Sort.Direction.DESC, "tradeDate"));
+	}
+	
+	public List<Trade> getAllTrades(String symbol) {
+		return tradeBookRepository.findAllBySymbol(symbol, Sort.by(Sort.Direction.DESC, "tradeDate"));
 	}
 	
 	public Trade updateTrade(Trade trade) {
