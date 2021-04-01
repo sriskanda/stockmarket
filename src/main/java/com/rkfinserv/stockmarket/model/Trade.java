@@ -27,6 +27,7 @@ public class Trade {
 	private Double latestPrice;
 	private Double changePercentage;
 	private Date lastTradedDate;
+	private Boolean active;
 	
 	
 	public void setChangePercentage() {

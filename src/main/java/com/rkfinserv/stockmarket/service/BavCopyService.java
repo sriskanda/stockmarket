@@ -21,6 +21,8 @@ import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.rkfinserv.stockmarket.exception.BavCopyException;
@@ -62,7 +64,7 @@ public class BavCopyService {
 	}
 
 	public List<BavCopyAudit> getBavCopyAudit(String symbol) {
-		return bavCopyAuditRepository.findBySymbol(symbol);
+		return bavCopyAuditRepository.findBySymbol(symbol, Sort.by(Sort.Direction.DESC,"timeStamp"));
 	}
 
 	public void loadBavCopy(String date, boolean isLatest) throws BavCopyException {

@@ -18,4 +18,5 @@ public class Holding {
 	private String symbol;
 	private Long quantity;
 	private Double avgPrice;
+	
 }

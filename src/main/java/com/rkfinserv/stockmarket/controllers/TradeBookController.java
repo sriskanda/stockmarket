@@ -101,6 +101,7 @@ public class TradeBookController {
 		.latestPrice(trade.getLatestPrice())
 		.changePercentage(trade.getChangePercentage())
 		.lastTradedDate(trade.getLastTradedDate())
+		.active(trade.getActive())
 		.build();
 	}
 	
@@ -113,6 +114,7 @@ public class TradeBookController {
 		.targetPrice(tradeDto.getTargetPrice())
 		.quantity(tradeDto.getQuantity())
 		.tradeDate(tradeDto.getTradeDate())
+		.active(tradeDto.getActive())
 		.build();
 	}
 	

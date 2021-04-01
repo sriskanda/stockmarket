@@ -31,4 +31,5 @@ public class TradeDto {
 	private Double latestPrice;
 	private Double changePercentage;
 	private Date lastTradedDate;
+	private Boolean active;
 }

@@ -36,6 +36,7 @@ public class BavCopy {
 	private Long totalTrades;
 	private String isin;
 	private Date insertedAt;
+	private Boolean shortListed;
 	public void setChange() {
 		this.change = close - prevClose;
 	}
@@ -62,6 +63,7 @@ public class BavCopy {
 		.totalTrades(totalTrades)
 		.isin(isin)
 		.insertedAt(insertedAt)
+		.shortListed(shortListed)
 		.build();
 	}
 

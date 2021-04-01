@@ -14,7 +14,7 @@ import com.rkfinserv.stockmarket.model.BavCopyAudit;
 public interface BavCopyAuditRepository extends MongoRepository<BavCopyAudit, String> {
 	
 	@Query("{'symbol':?0}")
-	public List<BavCopyAudit> findBySymbol(String symbol);
+	public List<BavCopyAudit> findBySymbol(String symbol, Sort sort);
 	
 	@Query("{'symbol':?0}")
 	public List<BavCopyAudit> findBySymbol(String symbol, Pageable pageable);

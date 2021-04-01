@@ -1,6 +1,7 @@
 package com.rkfinserv.stockmarket.service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import com.rkfinserv.stockmarket.model.Holding;
 import com.rkfinserv.stockmarket.repositories.HoldingsRepository;
 
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @Service
 public class HoldingsService {
 	
@@ -23,7 +26,7 @@ public class HoldingsService {
 		holdingsRepository.save(holding);
 	}
 	
-	public Collection<Holding> getAllHolding(){
+	public List<Holding> getAllHolding(){
 		return holdingsRepository.findAll();
 	}
 	
