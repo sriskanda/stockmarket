@@ -1,7 +1,9 @@
 package com.rkfinserv.stockmarket.controllers;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.websocket.server.PathParam;
 
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rkfinserv.stockmarket.dto.BavCopyAuditDto;
 import com.rkfinserv.stockmarket.dto.BavCopyDto;
+import com.rkfinserv.stockmarket.dto.StockChartDataDto;
 import com.rkfinserv.stockmarket.exception.BavCopyException;
 import com.rkfinserv.stockmarket.model.BavCopy;
 import com.rkfinserv.stockmarket.model.BavCopyAudit;
@@ -56,6 +59,23 @@ public class BavCopyController {
 			bavCopiesDto.add(bavCopy.asDto());
 		}
 		return bavCopiesDto;
+	}
+	
+	
+	@GetMapping("/chart/{symbol}")
+	public StockChartDataDto getStockPriceChartData(@PathVariable String symbol) {
+		List<BavCopyAudit> bavCopies = bavCopyService.getBavCopyAudit(symbol);
+		List<BavCopyAudit> sortedBavCopies = bavCopies.stream().sorted(Comparator.comparing(BavCopyAudit::getTimeStamp)).collect(Collectors.toList());
+		String[] dates = 
+				sortedBavCopies.stream()
+			              .map(BavCopyAudit::getDateText)
+			              .collect(Collectors.toList()).toArray(new String[bavCopies.size()]);
+		Double[] prices = 
+				sortedBavCopies.stream()
+			              .map(BavCopyAudit::getClose)
+			              .collect(Collectors.toList()).toArray(new Double[bavCopies.size()]);
+		StockChartDataDto stockChartDataDto = StockChartDataDto.builder().dates(dates).prices(prices).build();
+		return stockChartDataDto;
 	}
 	
 	@GetMapping("history/{symbol}")

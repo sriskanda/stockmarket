@@ -1,5 +1,6 @@
 package com.rkfinserv.stockmarket.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
@@ -82,5 +83,8 @@ public class BavCopyAudit {
 		
 	}
 	
+	public String getDateText() {
+		return new SimpleDateFormat("dd-MM-YY").format(timeStamp);
+	}
 	
 }

@@ -26,9 +26,16 @@ public class TechnicalAnalysisController {
 		this.techincalAnalysisService = techincalAnalysisService;
 	}
 	
-	@GetMapping
-	public List<BavCopy> test(@RequestParam Integer days) {
-		return techincalAnalysisService.performAnalysis(days, null);
+	@GetMapping("/bearishChange")
+	public List<String> findBearishStocksChangedDirection(@RequestParam Integer days, boolean isWatchListOnly) {
+		log.info("Request received days={} isWatchListOnly={}", days, isWatchListOnly);
+		return techincalAnalysisService.filterBearishStocksChangedDirection(days, isWatchListOnly);
+	}
+	
+	@GetMapping("/downFromMax")
+	public List<String> findStockPricePriceDownFromHigh(@RequestParam Integer days, boolean isWatchListOnly, Integer changePercentage) {
+		log.info("Request received days={} isWatchListOnly={}, changePercentage={}", days, isWatchListOnly, changePercentage);		
+		return techincalAnalysisService.filterStockPricePriceDownFromHigh(days, isWatchListOnly,changePercentage );
 	}
 	
 	

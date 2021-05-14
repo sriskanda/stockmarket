@@ -20,10 +20,27 @@ public class StockDetailsDto {
 	private Long sharesOutstanding;
 	private Integer yearIncorp;
 	private String learMoreLink;
+	private boolean addedToWatch;
 	
 	
-	
-	
+	public static StockDetailsDto emptyData(String id) {
+		return StockDetailsDto.builder()
+		._id(id)
+		.name("")
+		.description("")
+		.employees(0)
+		.headQuarters("xxx,xxx,xxx,xxx,xxx,xxx")
+		.industry("")
+		.marketCap(0L)
+		.sharesOutstanding(0L)
+		.yearIncorp(0)
+		.learMoreLink("")
+		.addedToWatch(false)
+		.build();
+		
+		
+		
+	}
 	
 	
 }

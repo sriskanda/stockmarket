@@ -26,7 +26,6 @@ public class BavCopyDto {
 	private Long totalTrades;
 	private String isin;
 	private Date insertedAt;
-	private Boolean shortListed;
 	
 	
 }

@@ -24,7 +24,6 @@ public class StockDetails {
 	private Integer yearIncorp;
 	private String learMoreLink;
 	
-	
 	public StockDetailsDto asDto() {
 		return StockDetailsDto.builder()
 		._id(_id)

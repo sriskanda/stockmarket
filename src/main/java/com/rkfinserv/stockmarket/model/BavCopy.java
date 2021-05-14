@@ -1,5 +1,7 @@
 package com.rkfinserv.stockmarket.model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
@@ -36,7 +38,7 @@ public class BavCopy {
 	private Long totalTrades;
 	private String isin;
 	private Date insertedAt;
-	private Boolean shortListed;
+	
 	public void setChange() {
 		this.change = close - prevClose;
 	}
@@ -63,8 +65,10 @@ public class BavCopy {
 		.totalTrades(totalTrades)
 		.isin(isin)
 		.insertedAt(insertedAt)
-		.shortListed(shortListed)
 		.build();
 	}
 
+	public String getDateText() {
+		return new SimpleDateFormat("dd-MM-YY").format(timeStamp);
+	}
 }
