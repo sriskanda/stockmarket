@@ -45,7 +45,7 @@
 		</dependency>
 
 
-			<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
@@ -56,11 +56,17 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>4.1.2</version>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.rkfinserv.stockmarket</groupId>
+			<artifactId>techincal-analysis</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
 

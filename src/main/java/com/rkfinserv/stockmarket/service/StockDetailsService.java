@@ -36,6 +36,10 @@ public class StockDetailsService {
 			 return null;
 		 }
 	}
+	
+	public void update(StockDetails stockDetails) {
+		stockDetailsRepository.save(stockDetails);
+	}
 
 
 

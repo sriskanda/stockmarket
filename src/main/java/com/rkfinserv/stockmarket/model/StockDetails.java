@@ -6,6 +6,7 @@ import com.rkfinserv.stockmarket.dto.StockDetailsDto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Builder
@@ -24,6 +25,7 @@ public class StockDetails {
 	private Integer yearIncorp;
 	private String learMoreLink;
 	
+
 	public StockDetailsDto asDto() {
 		return StockDetailsDto.builder()
 		._id(_id)

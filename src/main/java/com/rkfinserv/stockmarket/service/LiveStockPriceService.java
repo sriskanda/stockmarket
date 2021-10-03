@@ -8,6 +8,8 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -39,7 +41,7 @@ public class LiveStockPriceService {
 			Iterator<Row> itr = sheet.iterator(); // iterating over excel file
 
 			while (itr.hasNext()) {
-				LiveStockPrice liveStockPrice = new LiveStockPrice();
+				LiveStockPrice liveStockPrice = LiveStockPrice.builder().livePrice(BigDecimal.ZERO).percentageChage(BigDecimal.ZERO).build();
 				Row row = itr.next();
 				Iterator<Cell> cellIterator = row.cellIterator(); // iterating over each column
 				int cellNo = 0;
@@ -58,15 +60,25 @@ public class LiveStockPriceService {
 							System.out.print(cell.getRichStringCellValue() + "\t\t\t");
 							break;
 						case NUMERIC: // field that represents number cell type
-							if (cellNo == 5) {
-								liveStockPrice.setLastTradedAt(cell.getDateCellValue());
-							} else if (cellNo == 3) {
+							if (cellNo == 3) {
 								liveStockPrice.setLivePrice(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
 										RoundingMode.HALF_UP));
 							}else if(cellNo ==4) {
 								liveStockPrice.setPercentageChage(BigDecimal.valueOf(cell.getNumericCellValue()*100).setScale(2,
 										RoundingMode.HALF_UP));
-							}else {
+							}else if (cellNo == 5) {
+								liveStockPrice.setLastTradedAt(cell.getDateCellValue());
+							}else if (cellNo == 6) {
+								liveStockPrice.setYearHigh(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
+										RoundingMode.HALF_UP));
+							}else if (cellNo == 7) {
+								liveStockPrice.setYearLow(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
+										RoundingMode.HALF_UP));
+							}else if (cellNo == 8) {
+								liveStockPrice.setVolume(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(0,
+										RoundingMode.HALF_UP));
+							}
+							else {
 								
 							}
 							break;
@@ -99,4 +111,12 @@ public class LiveStockPriceService {
 		return liveStockPrices;
 	}
 
+	
+	public Map<String, LiveStockPrice> getLiveStockPriceMap(){
+		Map<String, LiveStockPrice>	livePriceMap = new ConcurrentHashMap<String, LiveStockPrice>();
+		getLiveStockPrices().forEach(livePrice -> {
+			livePriceMap.put(livePrice.getSymbol(), livePrice);
+		});;	
+		return livePriceMap;
+	}
 }

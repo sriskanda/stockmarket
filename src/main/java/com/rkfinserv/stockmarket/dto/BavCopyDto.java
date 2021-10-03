@@ -1,14 +1,19 @@
 package com.rkfinserv.stockmarket.dto;
 
+import java.math.BigDecimal;
 import java.util.Date;
+
+import com.rkfinserv.stockmarket.dto.StockDetailsDto.PriceCategoryDto;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Setter
 @Getter
 @Builder
+@ToString
 public class BavCopyDto {
 	private String symbol;
 	private String series;
@@ -26,6 +31,5 @@ public class BavCopyDto {
 	private Long totalTrades;
 	private String isin;
 	private Date insertedAt;
-	
 	
 }

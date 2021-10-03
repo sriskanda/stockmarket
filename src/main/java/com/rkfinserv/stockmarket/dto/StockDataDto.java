@@ -10,4 +10,5 @@ import lombok.Setter;
 public class StockDataDto {
 	private BavCopyDto bavCopy;
 	private StockDetailsDto stockDetails;
+	private LiveStockPriceDto liveStockPriceDto;
 }

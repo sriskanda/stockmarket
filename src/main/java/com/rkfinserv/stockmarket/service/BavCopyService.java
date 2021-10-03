@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.ParseException;
@@ -39,15 +40,19 @@ public class BavCopyService {
 
 	private final BavCopyRepository bavCopyRepository;
 	private final BavCopyAuditRepository bavCopyAuditRepository;
-
+	private final ExcludedStocksService excludedStocksService;
+	
 	private final String DOWNLOAD_URL_PATTERN = "https://archives.nseindia.com/content/historical/EQUITIES/%s/%s/cm%sbhav.csv.zip";
-	private final String DOWNLOAD_FOLDER_PATH_PATTERN = "cm%sbhav.csv";
+	private final String DOWNLOAD_FOLDER_PATH_PATTERN = "C:\\Users\\harivar\\Downloads\\cm%sbhav.csv";
 
 	@Autowired
-	public BavCopyService(BavCopyRepository bavCopyRepository, BavCopyAuditRepository bavCopyAuditRepository) {
+	public BavCopyService(BavCopyRepository bavCopyRepository, 
+			BavCopyAuditRepository bavCopyAuditRepository,
+			ExcludedStocksService excludedStocksService) {
 		super();
 		this.bavCopyRepository = bavCopyRepository;
 		this.bavCopyAuditRepository = bavCopyAuditRepository;
+		this.excludedStocksService = excludedStocksService;
 	}
 
 	public List<BavCopy> getBavCopy() {
@@ -67,13 +72,19 @@ public class BavCopyService {
 		return bavCopyAuditRepository.findBySymbol(symbol, Sort.by(Sort.Direction.DESC,"timeStamp"));
 	}
 
+	public List<BavCopyAudit> getBavCopy(Date timeStamp) {
+		return bavCopyAuditRepository.findByTimeStamp(timeStamp);
+	}
 	public void loadBavCopy(String date, boolean isLatest) throws BavCopyException {
-		List<String> seriesFilter = List.of("EQ", "BE");
+		List<String> seriesFilter = List.of("EQ", "BE", "SM", "BZ");
 		String filePath = downloadFile(date);
 		List<BavCopy> bavRecords = readFile(filePath);
-		List<BavCopy> filteredBavRecords = bavRecords.stream().filter(record -> seriesFilter.contains(record.getSeries())).collect(Collectors.toList());
+		LOG.info("total entries in bavcopy = {}", bavRecords.size());
+		List<BavCopy> filteredBavRecords = bavRecords.stream()
+				.filter(record -> seriesFilter.contains(record.getSeries()) &&  !excludedStocksService.getExcludedList().contains(record.getSymbol()))
+				.collect(Collectors.toList());
 		persistRecords(filteredBavRecords, isLatest);
-		removeFile(filePath);
+		//removeFile(filePath);
 	}
 
 	private void persistRecords(List<BavCopy> bavCopies, boolean isLatest) {
@@ -119,6 +130,7 @@ public class BavCopyService {
 			}
 
 		} catch (Exception e) {
+			LOG.error("failed to read file ",e);
 			throw new BavCopyException(e, BavCopyResult.FAILED_READ_FILE);
 		}
 
@@ -132,6 +144,11 @@ public class BavCopyService {
 		String path = String.format(DOWNLOAD_URL_PATTERN, yearText, monthText, date);
 
 		String folderPath = String.format(DOWNLOAD_FOLDER_PATH_PATTERN, date);
+		//downloadFromNse(path, folderPath);
+		return folderPath;
+	}
+
+	private void downloadFromNse(String path, String folderPath) throws BavCopyException {
 		LOG.info("downloading the bavfile {}", path);
 		try {
 			FileOutputStream fos = new FileOutputStream(folderPath);
@@ -156,7 +173,6 @@ public class BavCopyService {
 			LOG.error("Failed to download the bavfile", e);
 			throw new BavCopyException(e, BavCopyResult.FAILED_DOWNLOAD_BAVCOPY);
 		}
-		return folderPath;
 	}
 
 }

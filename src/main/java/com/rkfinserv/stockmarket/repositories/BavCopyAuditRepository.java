@@ -1,5 +1,6 @@
 package com.rkfinserv.stockmarket.repositories;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -18,5 +19,8 @@ public interface BavCopyAuditRepository extends MongoRepository<BavCopyAudit, St
 	
 	@Query("{'symbol':?0}")
 	public List<BavCopyAudit> findBySymbol(String symbol, Pageable pageable);
-
+	
+	@Query("{'timeStamp':?0}")
+	public List<BavCopyAudit> findByTimeStamp(Date timeStamp);
+	
 }

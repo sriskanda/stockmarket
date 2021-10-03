@@ -52,20 +52,17 @@ public class HoldingsService {
 		.build();
 		tradeBookService.addTrade(trade);
 		
-		// add 10% down strategy alerts
-		log.info("adding 10% alerts for for symbol={}", holding.getSymbol());	
-		for(int i=10; i<=50; i+=10) {
-			Alert alert = Alert.builder()
-			.stockId(holding.getSymbol())
-			.snapshotPrice(BigDecimal.valueOf(holding.getAvgPrice()))
-			.triggerPrice(BigDecimal.valueOf(holding.getAvgPrice() - (holding.getAvgPrice() * i/100)))
-			.action(Action.BUY)
-			.createdDate(new Date())
-			.comment("Auto 10% down strategy")
-			.build();
-			alertService.upsert(alert);
-		}
-
+		/*
+		 * // add 10% down strategy alerts
+		 * log.info("adding 10% alerts for for symbol={}", holding.getSymbol()); for(int
+		 * i=10; i<=50; i+=10) { Alert alert = Alert.builder()
+		 * .stockId(holding.getSymbol())
+		 * .snapshotPrice(BigDecimal.valueOf(holding.getAvgPrice()))
+		 * .triggerPrice(BigDecimal.valueOf(holding.getAvgPrice() -
+		 * (holding.getAvgPrice() * i/100))) .action(Action.BUY) .createdDate(new
+		 * Date()) .comment("Auto 10% down strategy") .build();
+		 * alertService.upsert(alert); }
+		 */
 	}
 	
 	public List<Holding> getAllHolding(){

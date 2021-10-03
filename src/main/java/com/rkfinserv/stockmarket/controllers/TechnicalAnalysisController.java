@@ -27,9 +27,9 @@ public class TechnicalAnalysisController {
 	}
 	
 	@GetMapping("/bearishChange")
-	public List<String> findBearishStocksChangedDirection(@RequestParam Integer days, boolean isWatchListOnly) {
-		log.info("Request received days={} isWatchListOnly={}", days, isWatchListOnly);
-		return techincalAnalysisService.filterBearishStocksChangedDirection(days, isWatchListOnly);
+	public List<String> findBearishStocksChangedDirection(@RequestParam Integer days, boolean isWatchListOnly, boolean includeLivePrice) {
+		log.info("Request received days={} isWatchListOnly={} inclideLivePrice={}", days, isWatchListOnly, includeLivePrice);
+		return techincalAnalysisService.filterBearishStocksChangedDirection(days, isWatchListOnly, includeLivePrice);
 	}
 	
 	@GetMapping("/downFromMax")

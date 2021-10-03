@@ -84,7 +84,7 @@ public class BavCopyAudit {
 	}
 	
 	public String getDateText() {
-		return new SimpleDateFormat("dd-MM-YY").format(timeStamp);
+		return new SimpleDateFormat("dd-MM-yy").format(timeStamp);
 	}
 	
 }

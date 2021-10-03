@@ -1,7 +1,10 @@
 package com.rkfinserv.stockmarket.controllers;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +34,7 @@ import com.rkfinserv.stockmarket.service.BavCopyService;
 public class BavCopyController {
 
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
-	
+
 	@Autowired
 	private final BavCopyService bavCopyService;
 
@@ -39,58 +42,53 @@ public class BavCopyController {
 		super();
 		this.bavCopyService = bavCopyService;
 	}
-	
+
 	@GetMapping
 	public List<BavCopyDto> getStockPrice() {
 		List<BavCopyDto> bavCopiesDto = new ArrayList<BavCopyDto>();
 		List<BavCopy> bavCopies = bavCopyService.getBavCopy();
-		for(BavCopy bavCopy : bavCopies) {
+		for (BavCopy bavCopy : bavCopies) {
 			bavCopiesDto.add(bavCopy.asDto());
 		}
 		return bavCopiesDto;
 	}
 
-	
 	@GetMapping("/{symbol}")
 	public List<BavCopyDto> getStockPrice(@PathVariable String symbol) {
 		List<BavCopyDto> bavCopiesDto = new ArrayList<BavCopyDto>();
 		List<BavCopy> bavCopies = bavCopyService.getBavCopy(symbol);
-		for(BavCopy bavCopy : bavCopies) {
+		for (BavCopy bavCopy : bavCopies) {
 			bavCopiesDto.add(bavCopy.asDto());
 		}
+		LOG.info("Resutl bavCopiesDto={}",bavCopiesDto);
 		return bavCopiesDto;
 	}
-	
-	
+
 	@GetMapping("/chart/{symbol}")
 	public StockChartDataDto getStockPriceChartData(@PathVariable String symbol) {
 		List<BavCopyAudit> bavCopies = bavCopyService.getBavCopyAudit(symbol);
-		List<BavCopyAudit> sortedBavCopies = bavCopies.stream().sorted(Comparator.comparing(BavCopyAudit::getTimeStamp)).collect(Collectors.toList());
-		String[] dates = 
-				sortedBavCopies.stream()
-			              .map(BavCopyAudit::getDateText)
-			              .collect(Collectors.toList()).toArray(new String[bavCopies.size()]);
-		Double[] prices = 
-				sortedBavCopies.stream()
-			              .map(BavCopyAudit::getClose)
-			              .collect(Collectors.toList()).toArray(new Double[bavCopies.size()]);
+		List<BavCopyAudit> sortedBavCopies = bavCopies.stream().sorted(Comparator.comparing(BavCopyAudit::getTimeStamp))
+				.collect(Collectors.toList());
+		String[] dates = sortedBavCopies.stream().map(BavCopyAudit::getDateText).collect(Collectors.toList())
+				.toArray(new String[bavCopies.size()]);
+		Double[] prices = sortedBavCopies.stream().map(BavCopyAudit::getClose).collect(Collectors.toList())
+				.toArray(new Double[bavCopies.size()]);
 		StockChartDataDto stockChartDataDto = StockChartDataDto.builder().dates(dates).prices(prices).build();
 		return stockChartDataDto;
 	}
-	
+
 	@GetMapping("history/{symbol}")
 	public List<BavCopyAuditDto> getStockPriceHistory(@PathVariable String symbol) {
 		List<BavCopyAuditDto> bavCopiesAuditDto = new ArrayList<BavCopyAuditDto>();
 		List<BavCopyAudit> bavCopyAudits = bavCopyService.getBavCopyAudit(symbol);
-		for(BavCopyAudit bavCopyAudit : bavCopyAudits) {
+		for (BavCopyAudit bavCopyAudit : bavCopyAudits) {
 			bavCopiesAuditDto.add(bavCopyAudit.asDto(bavCopyAudit));
 		}
 		return bavCopiesAuditDto;
 	}
 
-	
 	@GetMapping(value = "/load/{date}")
-	public BavCopyResult loadBavCopy(@PathVariable String date, @RequestParam Boolean isLatest) {
+	public BavCopyResult loadBavCopy(@PathVariable String date, @RequestParam Boolean isLatest) throws Exception {
 		LOG.info("request received to load the bavcopy");
 		System.out.println("request received to load the bavcopy");
 		try {
@@ -101,14 +99,25 @@ public class BavCopyController {
 			return e.getBavCopyResult();
 		}
 	}
-	
-	public List<BavCopy> getStockHistory(String symbol, String date){
+
+	@GetMapping("/date")
+	public List<BavCopyAuditDto> fetchBavCopy(@RequestParam String dateStr) throws Exception {
+		LOG.info("request received to featch the bavcopy dateStr={}",dateStr);
+		List<BavCopyAuditDto> bavCopyAuditDtos = new ArrayList<BavCopyAuditDto>();
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss z");
+		Date date = sdf.parse(dateStr + " 23:00:00 IST");
+		List<BavCopyAudit> bavCopyAudits = bavCopyService.getBavCopy(date);
+		
+		bavCopyAudits.forEach(bavCopy -> bavCopyAuditDtos.add(bavCopy.asDto(bavCopy)));
+		LOG.info("fetched bavcopy date={} size={}", date, bavCopyAuditDtos.size());
+		return bavCopyAuditDtos;
+
+	}
+
+	public List<BavCopy> getStockHistory(String symbol, String date) {
 		LOG.info("request received to get history for {} from {}");
-		
-		
+
 		return null;
 	}
-	
-	
-	
+
 }

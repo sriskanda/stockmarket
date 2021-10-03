@@ -31,8 +31,8 @@ public class AlertDto {
 	
 	
 	public void populateData() {
-		changeWithSnapshot = snapshotPrice.subtract(triggerPrice).divide(snapshotPrice, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
-		changeWithLatest = latestPrice.subtract(triggerPrice).divide(latestPrice, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+		changeWithSnapshot = latestPrice.subtract(snapshotPrice).divide(snapshotPrice, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+		changeWithLatest = latestPrice.subtract(triggerPrice).divide(triggerPrice, 4, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
 		
 		if(ActionDto.SELL == action) {
 			if(changeWithLatest.compareTo(BigDecimal.ZERO) >=0) {
