@@ -13,12 +13,7 @@ import javax.websocket.server.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.rkfinserv.stockmarket.dto.BavCopyAuditDto;
 import com.rkfinserv.stockmarket.dto.BavCopyDto;
@@ -93,6 +88,19 @@ public class BavCopyController {
 		System.out.println("request received to load the bavcopy");
 		try {
 			bavCopyService.loadBavCopy(date, isLatest);
+			return BavCopyResult.SUCCESS;
+		} catch (BavCopyException e) {
+			LOG.error("Failed to load the bavcopy", e);
+			return e.getBavCopyResult();
+		}
+	}
+
+
+	@PutMapping(value = "/bavcopies")
+	public BavCopyResult loadBavCopies(@RequestParam Boolean isLatest) throws Exception {
+		LOG.info("request received to load the bavcopy from folder");
+		try {
+			bavCopyService.loadBavCopies(isLatest);
 			return BavCopyResult.SUCCESS;
 		} catch (BavCopyException e) {
 			LOG.error("Failed to load the bavcopy", e);

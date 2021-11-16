@@ -44,6 +44,9 @@ public class BavCopyService {
 	
 	private final String DOWNLOAD_URL_PATTERN = "https://archives.nseindia.com/content/historical/EQUITIES/%s/%s/cm%sbhav.csv.zip";
 	private final String DOWNLOAD_FOLDER_PATH_PATTERN = "C:\\Users\\harivar\\Downloads\\cm%sbhav.csv";
+	private final String BAV_COPY_SOURCE_FOLDER ="C:\\Users\\harivar\\Documents\\personal\\finance\\bavcopies\\load";
+	private final String BAV_COPY_ARCHIVE_FOLDER ="C:\\Users\\harivar\\Documents\\personal\\finance\\bavcopies\\archive\\";
+
 
 	@Autowired
 	public BavCopyService(BavCopyRepository bavCopyRepository, 
@@ -78,7 +81,7 @@ public class BavCopyService {
 	public void loadBavCopy(String date, boolean isLatest) throws BavCopyException {
 		List<String> seriesFilter = List.of("EQ", "BE", "SM", "BZ");
 		String filePath = downloadFile(date);
-		List<BavCopy> bavRecords = readFile(filePath);
+		List<BavCopy> bavRecords = readFile(new File(filePath));
 		LOG.info("total entries in bavcopy = {}", bavRecords.size());
 		List<BavCopy> filteredBavRecords = bavRecords.stream()
 				.filter(record -> seriesFilter.contains(record.getSeries()) &&  !excludedStocksService.getExcludedList().contains(record.getSymbol()))
@@ -88,12 +91,16 @@ public class BavCopyService {
 	}
 
 	private void persistRecords(List<BavCopy> bavCopies, boolean isLatest) {
+		List<String> seriesFilter = List.of("EQ", "BE", "SM", "BZ");
+
 		bavCopies.forEach(bavCopy -> {
-			if (isLatest) {
-				bavCopyRepository.save(bavCopy);
+			if(seriesFilter.contains(bavCopy.getSeries())) {
+				if (isLatest) {
+					bavCopyRepository.save(bavCopy);
+				}
+				BavCopyAudit bavCopyAudit = BavCopyAudit.createAudit(bavCopy);
+				bavCopyAuditRepository.save(bavCopyAudit);
 			}
-			BavCopyAudit bavCopyAudit = BavCopyAudit.createAudit(bavCopy);
-			bavCopyAuditRepository.save(bavCopyAudit);
 		});
 
 		LOG.info("competed saving all bavcoies {}", bavCopies.size());
@@ -108,11 +115,12 @@ public class BavCopyService {
 
 	}
 
-	private List<BavCopy> readFile(String filePath) throws BavCopyException {
-		LOG.info("Reading the file {}", filePath);
+	private List<BavCopy> readFile(File file) throws BavCopyException {
+		LOG.info("Reading the file {}", file.getAbsolutePath());
 		List<BavCopy> bavRecords = new ArrayList<BavCopy>();
+		BufferedReader br = null;
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(filePath));
+			br = new BufferedReader(new FileReader(file));
 			String line;
 			br.readLine();
 			while ((line = br.readLine()) != null) {
@@ -132,6 +140,15 @@ public class BavCopyService {
 		} catch (Exception e) {
 			LOG.error("failed to read file ",e);
 			throw new BavCopyException(e, BavCopyResult.FAILED_READ_FILE);
+		}finally {
+			if(br != null){
+				try {
+					br.close();
+				} catch (IOException e) {
+					LOG.error("failed to close the file ",e);
+					throw new BavCopyException(e, BavCopyResult.FAILED_TO_CLOSE_FILE);
+				}
+			}
 		}
 
 		return bavRecords;
@@ -175,4 +192,21 @@ public class BavCopyService {
 		}
 	}
 
+	public void loadBavCopies(Boolean isLatest) throws BavCopyException {
+		File bavCopyFolder = new File(BAV_COPY_SOURCE_FOLDER);
+		File[] files = bavCopyFolder.listFiles();
+		LOG.info("loading No. of files to load {}", files.length);
+		for (File file :files){
+			List<BavCopy> bavCopies = readFile(file);
+			persistRecords(bavCopies,isLatest);
+			archiveFile(file);
+		}
+	}
+
+	private void archiveFile(File file) {
+		if(file.renameTo(new File(BAV_COPY_ARCHIVE_FOLDER + file.getName()))){
+			file.delete();
+			LOG.info("Archived the file successfully");
+		}
+	}
 }

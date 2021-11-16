@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.rkfinserv.stockmarket.model.CandleData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.rkfinserv.stockmarket.model.BavCopyAudit;
-import com.rkfinserv.stockmarket.patterns.model.CandleData;
 import com.rkfinserv.stockmarket.service.BavCopyService;
 
 import lombok.extern.slf4j.Slf4j;
