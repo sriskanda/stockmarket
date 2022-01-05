@@ -20,22 +20,31 @@ import lombok.Setter;
 public class LiveStockPrice {
 	@EqualsAndHashCode.Include
 	String symbol;
-	BigDecimal livePrice;
+	BigDecimal close;
 	BigDecimal percentageChage;
 	BigDecimal yearHigh;
 	BigDecimal yearLow;
 	Date lastTradedAt;
 	BigDecimal volume;
+	BigDecimal open;
+	BigDecimal high;
+	BigDecimal low;
+	BigDecimal prevClose;
+
 
 
 	public LiveStockPriceDto asDto(){
 		return LiveStockPriceDto.builder().symbol(symbol)
-				.livePrice(livePrice)
+				.close(close)
 				.percentageChage(percentageChage)
 			    .yearHigh(yearHigh)
 			    .yearLow(yearLow)
 				.lastTradedAt(lastTradedAt)
 				.volume(volume)
+				.open(open)
+				.high(high)
+				.low(low)
+				.prevClose(prevClose)
 				.build();
 	}
 	

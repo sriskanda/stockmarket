@@ -96,7 +96,7 @@ public class BavCopyController {
 	}
 
 
-	@PutMapping(value = "/bavcopies")
+	@PostMapping(value = "/bavcopies")
 	public BavCopyResult loadBavCopies(@RequestParam Boolean isLatest) throws Exception {
 		LOG.info("request received to load the bavcopy from folder");
 		try {
@@ -112,7 +112,7 @@ public class BavCopyController {
 	public List<BavCopyAuditDto> fetchBavCopy(@RequestParam String dateStr) throws Exception {
 		LOG.info("request received to featch the bavcopy dateStr={}",dateStr);
 		List<BavCopyAuditDto> bavCopyAuditDtos = new ArrayList<BavCopyAuditDto>();
-		SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss z");
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss z");
 		Date date = sdf.parse(dateStr + " 23:00:00 IST");
 		List<BavCopyAudit> bavCopyAudits = bavCopyService.getBavCopy(date);
 		

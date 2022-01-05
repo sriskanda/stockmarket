@@ -5,24 +5,21 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.rkfinserv.stockmarket.model.BavCopyFile;
+import com.rkfinserv.stockmarket.repositories.BavCopyFileRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +38,7 @@ public class BavCopyService {
 	private final BavCopyRepository bavCopyRepository;
 	private final BavCopyAuditRepository bavCopyAuditRepository;
 	private final ExcludedStocksService excludedStocksService;
+	private final BavCopyFileRepository bavCopyFileRepository;
 	
 	private final String DOWNLOAD_URL_PATTERN = "https://archives.nseindia.com/content/historical/EQUITIES/%s/%s/cm%sbhav.csv.zip";
 	private final String DOWNLOAD_FOLDER_PATH_PATTERN = "C:\\Users\\harivar\\Downloads\\cm%sbhav.csv";
@@ -49,13 +47,14 @@ public class BavCopyService {
 
 
 	@Autowired
-	public BavCopyService(BavCopyRepository bavCopyRepository, 
-			BavCopyAuditRepository bavCopyAuditRepository,
-			ExcludedStocksService excludedStocksService) {
+	public BavCopyService(BavCopyRepository bavCopyRepository,
+						  BavCopyAuditRepository bavCopyAuditRepository,
+						  ExcludedStocksService excludedStocksService, BavCopyFileRepository bavCopyFileRepository) {
 		super();
 		this.bavCopyRepository = bavCopyRepository;
 		this.bavCopyAuditRepository = bavCopyAuditRepository;
 		this.excludedStocksService = excludedStocksService;
+		this.bavCopyFileRepository = bavCopyFileRepository;
 	}
 
 	public List<BavCopy> getBavCopy() {
@@ -197,9 +196,14 @@ public class BavCopyService {
 		File[] files = bavCopyFolder.listFiles();
 		LOG.info("loading No. of files to load {}", files.length);
 		for (File file :files){
-			List<BavCopy> bavCopies = readFile(file);
-			persistRecords(bavCopies,isLatest);
-			archiveFile(file);
+			if(bavCopyFileRepository.findById(file.getName()).isPresent()) {
+				LOG.info("BavCopy is already loaded fileName: {}", file.getName());
+			}else{
+				List<BavCopy> bavCopies = readFile(file);
+				persistRecords(bavCopies, isLatest);
+				bavCopyFileRepository.insert(BavCopyFile.builder().name(file.getName()).build());
+				archiveFile(file);
+			}
 		}
 	}
 
@@ -207,6 +211,8 @@ public class BavCopyService {
 		if(file.renameTo(new File(BAV_COPY_ARCHIVE_FOLDER + file.getName()))){
 			file.delete();
 			LOG.info("Archived the file successfully");
+		}else{
+			LOG.error("Filed to archive file" + file.getName());
 		}
 	}
 }

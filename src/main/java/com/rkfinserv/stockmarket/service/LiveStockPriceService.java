@@ -41,7 +41,7 @@ public class LiveStockPriceService {
 			Iterator<Row> itr = sheet.iterator(); // iterating over excel file
 
 			while (itr.hasNext()) {
-				LiveStockPrice liveStockPrice = LiveStockPrice.builder().livePrice(BigDecimal.ZERO).percentageChage(BigDecimal.ZERO).build();
+				LiveStockPrice liveStockPrice = LiveStockPrice.builder().close(BigDecimal.ZERO).percentageChage(BigDecimal.ZERO).build();
 				Row row = itr.next();
 				Iterator<Cell> cellIterator = row.cellIterator(); // iterating over each column
 				int cellNo = 0;
@@ -61,7 +61,7 @@ public class LiveStockPriceService {
 							break;
 						case NUMERIC: // field that represents number cell type
 							if (cellNo == 3) {
-								liveStockPrice.setLivePrice(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
+								liveStockPrice.setClose(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
 										RoundingMode.HALF_UP));
 							}else if(cellNo ==4) {
 								liveStockPrice.setPercentageChage(BigDecimal.valueOf(cell.getNumericCellValue()*100).setScale(2,
@@ -77,8 +77,19 @@ public class LiveStockPriceService {
 							}else if (cellNo == 8) {
 								liveStockPrice.setVolume(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(0,
 										RoundingMode.HALF_UP));
-							}
-							else {
+							}else if (cellNo == 9) {
+							liveStockPrice.setOpen(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
+									RoundingMode.HALF_UP));
+							}else if (cellNo == 10) {
+								liveStockPrice.setHigh(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
+										RoundingMode.HALF_UP));
+							}else if (cellNo == 11) {
+								liveStockPrice.setLow(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
+										RoundingMode.HALF_UP));
+							}else if (cellNo == 12) {
+								liveStockPrice.setPrevClose(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
+										RoundingMode.HALF_UP));
+							}else {
 								
 							}
 							break;
