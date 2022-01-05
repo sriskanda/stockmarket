@@ -1,6 +1,6 @@
 package com.rkfinserv.stockmarket.controllers;
 
-import java.text.ParseException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,8 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.websocket.server.PathParam;
-
+import com.rkfinserv.stockmarket.dto.CandleDataDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +69,22 @@ public class BavCopyController {
 				.toArray(new Double[bavCopies.size()]);
 		StockChartDataDto stockChartDataDto = StockChartDataDto.builder().dates(dates).prices(prices).build();
 		return stockChartDataDto;
+	}
+
+	@GetMapping("/candle-chart/{symbol}")
+	public List<CandleDataDto> getCandleChartData(@PathVariable String symbol) {
+		List<CandleDataDto> candleDataDtos = new ArrayList<>();
+		List<BavCopyAudit> bavCopies = bavCopyService.getBavCopyAudit(symbol);
+		List<BavCopyAudit> sortedBavCopies = bavCopies.stream().sorted(Comparator.comparing(BavCopyAudit::getTimeStamp))
+				.collect(Collectors.toList());
+		sortedBavCopies.forEach(bavCopyAudit -> {
+			CandleDataDto candleDataDto = CandleDataDto.builder()
+					.x(bavCopyAudit.getTimeStamp())
+					.y(new Double[]{bavCopyAudit.getOpen(), bavCopyAudit.getHigh(), bavCopyAudit.getLow(), bavCopyAudit.getClose()})
+					.build();
+			candleDataDtos.add(candleDataDto);
+		});
+		return candleDataDtos;
 	}
 
 	@GetMapping("history/{symbol}")
