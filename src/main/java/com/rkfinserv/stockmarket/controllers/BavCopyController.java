@@ -1,22 +1,17 @@
 package com.rkfinserv.stockmarket.controllers;
 
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import com.rkfinserv.stockmarket.dto.CandleDataDto;
+import com.rkfinserv.stockmarket.dto.*;
+import com.rkfinserv.stockmarket.model.LiveStockPrice;
+import com.rkfinserv.stockmarket.service.LiveStockPriceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.rkfinserv.stockmarket.dto.BavCopyAuditDto;
-import com.rkfinserv.stockmarket.dto.BavCopyDto;
-import com.rkfinserv.stockmarket.dto.StockChartDataDto;
 import com.rkfinserv.stockmarket.exception.BavCopyException;
 import com.rkfinserv.stockmarket.model.BavCopy;
 import com.rkfinserv.stockmarket.model.BavCopyAudit;
@@ -29,12 +24,14 @@ public class BavCopyController {
 
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-	@Autowired
 	private final BavCopyService bavCopyService;
+	private final LiveStockPriceService liveStockPriceService;
 
-	public BavCopyController(BavCopyService bavCopyService) {
+	@Autowired
+	public BavCopyController(BavCopyService bavCopyService, LiveStockPriceService liveStockPriceService) {
 		super();
 		this.bavCopyService = bavCopyService;
+		this.liveStockPriceService = liveStockPriceService;
 	}
 
 	@GetMapping
@@ -72,7 +69,7 @@ public class BavCopyController {
 	}
 
 	@GetMapping("/candle-chart/{symbol}")
-	public List<CandleDataDto> getCandleChartData(@PathVariable String symbol) {
+	public CandleChartDataDto getCandleChartData(@PathVariable String symbol) {
 		List<CandleDataDto> candleDataDtos = new ArrayList<>();
 		List<BavCopyAudit> bavCopies = bavCopyService.getBavCopyAudit(symbol);
 		List<BavCopyAudit> sortedBavCopies = bavCopies.stream().sorted(Comparator.comparing(BavCopyAudit::getTimeStamp))
@@ -84,7 +81,20 @@ public class BavCopyController {
 					.build();
 			candleDataDtos.add(candleDataDto);
 		});
-		return candleDataDtos;
+		LiveStockPrice liveStockPrice = liveStockPriceService.getLiveStockPriceMap().get(symbol);
+		if(liveStockPrice != null){
+			Date lastTradedAt = liveStockPrice.getLastTradedAt();
+			lastTradedAt.setHours(17);
+			lastTradedAt.setMinutes(30);
+			lastTradedAt.setSeconds(0);
+			CandleDataDto candleDataDto = CandleDataDto.builder()
+					.x(lastTradedAt)
+					.y(new Double[]{liveStockPrice.getOpen().doubleValue(), liveStockPrice.getHigh().doubleValue(), liveStockPrice.getLow().doubleValue(), liveStockPrice.getClose().doubleValue()})
+					.build();
+			candleDataDtos.add(candleDataDto);
+		}
+		return CandleChartDataDto.builder().candleDataDtoList(candleDataDtos).liveStockPriceDto(liveStockPrice.asDto()).build();
+
 	}
 
 	@GetMapping("history/{symbol}")

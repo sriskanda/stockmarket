@@ -32,7 +32,7 @@ public class StockDetailsService {
 			 return stockDetailsOptional.get();
 		 }else {
 			 //TODO: throw custom exception and return 404 as response
-			 log.warn("Stock details doesn't exists with symbol {}",symbol );
+			 //log.warn("Stock details doesn't exists with symbol {}",symbol );
 			 return null;
 		 }
 	}

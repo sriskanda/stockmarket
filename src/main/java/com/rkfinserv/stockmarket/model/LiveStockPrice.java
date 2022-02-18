@@ -30,6 +30,18 @@ public class LiveStockPrice {
 	BigDecimal high;
 	BigDecimal low;
 	BigDecimal prevClose;
+	String name;
+	String industry;
+	String headQuarters;
+	String description;
+	String yearOfInc;
+	Long employees;
+	BigDecimal marketCap;
+	BigDecimal peRation;
+	BigDecimal beta;
+	Long outstandingShares;
+
+
 
 
 
@@ -45,6 +57,16 @@ public class LiveStockPrice {
 				.high(high)
 				.low(low)
 				.prevClose(prevClose)
+				.name(name)
+				.industry(industry)
+				.headQuarters(headQuarters)
+				.description(description)
+				.yearOfInc(yearOfInc)
+				.employees(employees)
+				.marketCap(marketCap)
+				.peRation(peRation)
+				.beta(beta)
+				.outstandingShares(outstandingShares)
 				.build();
 	}
 	

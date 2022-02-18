@@ -56,8 +56,17 @@ public class LiveStockPriceService {
 						case STRING: // field that represents string cell type
 							if (cellNo == 2) {
 								liveStockPrice.setSymbol(cell.getRichStringCellValue().toString());
+							}else if (cellNo == 13) {
+								liveStockPrice.setName(cell.getRichStringCellValue().toString());
+							}else if (cellNo == 14) {
+								liveStockPrice.setIndustry(cell.getRichStringCellValue().toString());
+							}else if (cellNo == 15) {
+								liveStockPrice.setHeadQuarters(cell.getRichStringCellValue().toString());
+							}else if (cellNo == 16) {
+								liveStockPrice.setDescription(cell.getRichStringCellValue().toString());
 							}
-							System.out.print(cell.getRichStringCellValue() + "\t\t\t");
+
+							//System.out.print(cell.getRichStringCellValue() + "\t\t\t");
 							break;
 						case NUMERIC: // field that represents number cell type
 							if (cellNo == 3) {
@@ -89,15 +98,34 @@ public class LiveStockPriceService {
 							}else if (cellNo == 12) {
 								liveStockPrice.setPrevClose(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
 										RoundingMode.HALF_UP));
-							}else {
+							}else if (cellNo == 17) {
+								liveStockPrice.setYearOfInc(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(0,
+										RoundingMode.HALF_UP).toString());
+							}else if (cellNo == 22) {
+								liveStockPrice.setEmployees(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(0,
+										RoundingMode.HALF_UP).longValue());
+							}else if (cellNo == 19) {
+								liveStockPrice.setMarketCap(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
+										RoundingMode.HALF_UP));
+							}else if (cellNo == 20) {
+								liveStockPrice.setPeRation(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
+										RoundingMode.HALF_UP));
+							}else if (cellNo == 21) {
+								liveStockPrice.setBeta(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(2,
+										RoundingMode.HALF_UP));
+							}else if (cellNo == 22) {
+								liveStockPrice.setOutstandingShares(BigDecimal.valueOf(cell.getNumericCellValue()).setScale(0,
+										RoundingMode.HALF_UP).longValue());
+							}
+							else {
 								
 							}
 							break;
 						case FORMULA: // field that represents number cell type
-							System.out.print(cell.getCellFormula() + "\t\t\t");
+							//System.out.print(cell.getCellFormula() + "\t\t\t");
 							break;
 						default:
-							System.out.println("xxx");
+							//System.out.println("xxx");
 						}
 					}
 

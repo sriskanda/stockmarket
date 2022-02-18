@@ -82,6 +82,7 @@ public class StocksDetailsController {
 				liveStockPriceDto = liveStockPrices.get(bavCopy.getSymbol()).asDto();
 				liveStockPriceDto.enrichData();
 			}else {
+				log.info("Live data doesn't exist for stock = {}", bavCopyDto.getSymbol());
 				liveStockPriceDto = LiveStockPriceDto.empty();
 			}
 			

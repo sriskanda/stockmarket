@@ -26,6 +26,16 @@ public class LiveStockPriceDto {
 	BigDecimal low;
 	BigDecimal prevClose;
 	Date lastTradedAt;
+	String name;
+	String industry;
+	String headQuarters;
+	String description;
+	String yearOfInc;
+	Long employees;
+	BigDecimal marketCap;
+	BigDecimal peRation;
+	BigDecimal beta;
+	Long outstandingShares;
 	
 	
 	
